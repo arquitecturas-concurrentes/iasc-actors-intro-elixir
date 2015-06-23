@@ -24,16 +24,35 @@ class Table
 end
 
 
-def concurrent_test
+def concurrent_test(count)
   table = Table.new({counter: 0})
-  (1..100).map do |it|
+  (1..count).map do |it|
     if it.even?
-      Thread.new do 
+      Thread.new do
+        table.put(:counter, 1)
+      end
+    else
+      Thread.new do
+        v = table.get(:counter)
+        table.put(:counter, 2)
+      end
+    end
+  end.each(&:join)
+  table
+end
+
+
+
+def concurrent_test2(count)
+  table = Table.new({counter: 0})
+  (1..count).map do |it|
+    if it.even?
+      Thread.new do
         v = table.get(:counter)
         table.put(:counter, v+1)
       end
     else
-      Thread.new do 
+      Thread.new do
         v = table.get(:counter)
         table.put(:counter, v-1)
       end

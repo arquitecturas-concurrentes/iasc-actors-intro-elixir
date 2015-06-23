@@ -21,7 +21,22 @@ defmodule Table do
     end
   end
 
-  def concurrent_test(table, times) do
+   def concurrent_test(table, times) do
+    Enum.each(1..times, fn it ->
+      if Integer.is_even(it) do
+        spawn fn ->
+          send table, {:put, :counter, 1}
+        end
+      else
+        spawn fn ->
+          send table, {:put, :counter, 2}
+        end
+      end
+    end)
+  end
+
+
+  def concurrent_test2(table, times) do
     Enum.each(1..times, fn it ->
       if Integer.is_even(it) do
         spawn fn ->
