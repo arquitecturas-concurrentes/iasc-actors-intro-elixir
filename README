@@ -1,0 +1,35 @@
+1. el ejemplo facil, el contador roto. 
+
+JRruby
+
+1000.times { Thread.new { i += 1 }   }
+
+2. ejemplo en java
+   Falacias: 
+    a. si no es thread safe, se rompe siempre. Eso da dos problemas: podemos confiar en cosas en que no deberiamos, o podemos tener exceso de precausion
+    b. si es thread safe, es thread safe
+        http://www.jstorimer.com/pages/ruby-core-classes-arent-thread-safe
+        
+Moraleja 1: la concurrencia es difícil.
+        
+3. Problema: queremos construir un KV concurrente. 
+
+JRuby,  test 1 pasa. 
+
+Comparar con elixir; notar que no hay join. Notar patrones.
+
+Ojo para los que saben ruby, estoy usando jruby
+
+4. Problema del contador roto. 
+
+Ojo, en elixir está roto también (pero es más facil de arreglar)
+
+Moraleja 2: actores no evita las race conditions ni problemas de concurrencia per se. 
+La delagación cobra nuevo valor. 
+
+5. Mostrar nuevamente la versión original rota, esta vez en ruby puro. 
+
+ Falacia d. con green thread no hay problemas de concurrencia
+ 
+ Moraleja: el problema es la concurrencia, no el paralelismo. 
+
