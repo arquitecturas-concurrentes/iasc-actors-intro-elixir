@@ -18,6 +18,9 @@ defmodule Table do
       {:delete, key} ->
           loop(Map.delete(map, key))
 
+      {:accum, key, delta} ->
+          loop(Map.update!(map, key, fn it -> it + delta end))
+
     end
   end
 
@@ -40,19 +43,11 @@ defmodule Table do
     Enum.each(1..times, fn it ->
       if Integer.is_even(it) do
         spawn fn ->
-          send table, {:get, :counter, self()}
-          v = receive do
-            {:ok, r} -> r
-          end
-          send table, {:put, :counter, v+1}
+          send table, {:accum, :counter, 1}
         end
       else
         spawn fn ->
-          send table, {:get, :counter, self()}
-          v = receive do
-           {:ok, r} -> r
-          end
-          send table, {:put, :counter, v-1}
+          send table, {:accum, :counter, -1}
         end
       end
     end)

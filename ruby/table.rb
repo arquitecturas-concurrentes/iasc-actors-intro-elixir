@@ -6,7 +6,7 @@ class Table
 
   def put(key, value)
     @mutex.synchronize do
-      @hash[key] = value 
+      @hash[key] = value
     end
   end
 
@@ -14,11 +14,17 @@ class Table
      @mutex.synchronize do
        @hash[key]
      end
-  end 
+  end
 
   def delete(key)
-    @mutex.synchroinze do
+    @mutex.synchronize do
       @hash.delete key
+    end
+  end
+
+  def accum(key, delta)
+    @mutex.synchronize do
+      @hash[key] += delta
     end
   end
 end
@@ -48,13 +54,11 @@ def concurrent_test2(count)
   (1..count).map do |it|
     if it.even?
       Thread.new do
-        v = table.get(:counter)
-        table.put(:counter, v+1)
+        table.accum(:counter, 1)
       end
     else
       Thread.new do
-        v = table.get(:counter)
-        table.put(:counter, v-1)
+        table.accum(:counter, -1)
       end
     end
   end.each(&:join)
