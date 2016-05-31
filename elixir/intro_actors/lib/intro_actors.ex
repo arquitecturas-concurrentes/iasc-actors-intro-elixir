@@ -8,7 +8,7 @@ defmodule Jose do
     receive do
       {pid, :camina} -> IO.puts 'Jose empieza a caminar. Proceso #{inspect self}'
       {pid, :corre} -> IO.puts 'Ni ahi. Proceso #{inspect self}'
-      {pid, _ } -> send :pid, {:error, 'Accion Invalida de #{inspect pid}'}
+      {pid, _ } -> send pid, {:error, 'Accion Invalida de #{inspect pid}'}
     end
     loop
   end
