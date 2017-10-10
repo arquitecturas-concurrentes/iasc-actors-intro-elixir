@@ -12,14 +12,14 @@ false
 iex(4)> self()
 #PID<0.59.0>
 
-iex(5)> Process.alive? self                                                                                                                                                                           true
+iex(5)> Process.alive? self()                                                                                                                                                                           true
 
 #Pasaje de mensajes
 
 #El interprete es un proceso también y puedo mandarle mensajes
-iex(4)> send self, self
+iex(4)> send self(), self()
 #PID<0.59.0>
-iex(5)> send self, :bleh
+iex(5)> send self(), :bleh
 :bleh
 iex(6)> flush
 #PID<0.59.0>
@@ -85,13 +85,13 @@ iex(18)> receive do
 # PID<0.59.0> ---> {:hola} ---> #PID<0.93.0>
 
 
-send self, :saraza
-send self, :pepe
+send self(), :saraza
+send self(), :pepe
 flush
 
-iex(21)> send self, :saraza
+iex(21)> send self(), :saraza
 :saraza
-iex(22)> send self, :pepe
+iex(22)> send self(), :pepe
 :pepe
 iex(23)> flush
 :saraza
