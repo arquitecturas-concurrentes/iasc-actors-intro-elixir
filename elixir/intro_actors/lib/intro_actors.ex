@@ -17,6 +17,7 @@ end
 
 jose = Jose.start
 send jose, {self(),:camina}
+send jose, {self(),:corre}
 
 Process.register jose, :jose
 
