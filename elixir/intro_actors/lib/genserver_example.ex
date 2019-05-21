@@ -45,7 +45,6 @@ bloque = fn ->
       _ -> IO.puts 'Default'
     end
     IO.puts 'La tarea de pepita ha terminado'
-    bloque
 end 
 
 pid = spawn bloque
