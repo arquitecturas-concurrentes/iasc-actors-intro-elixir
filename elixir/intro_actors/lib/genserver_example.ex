@@ -2,10 +2,6 @@ defmodule Post do
   use GenServer
   #Implementación con actores y Genserver...
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
-  end
-
   def init(_args) do
     cantidad_inicial_likes = 0
     {:ok, cantidad_inicial_likes}
