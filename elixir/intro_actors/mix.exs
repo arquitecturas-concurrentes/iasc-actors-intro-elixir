@@ -3,8 +3,8 @@ defmodule Actors.Mixfile do
 
   def project do
     [app: :intro_actors,
-     version: "0.0.1",
-     elixir: "~> 1.8",
+     version: "0.0.3",
+     elixir: "~> 1.9",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps]
