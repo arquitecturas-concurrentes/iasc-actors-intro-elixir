@@ -1,50 +1,18 @@
-defmodule Echoserver do
-    use GenServer
+defmodule Post do
+  use GenServer
+  #Implementación con actores y Genserver...
 
-    def start_link do
-      GenServer.start_link(__MODULE__, :ok, [])
-    end
+  def init(_args) do
+    cantidad_inicial_likes = 0
+    {:ok, cantidad_inicial_likes}
+  end
 
-    def start do
-      GenServer.start(__MODULE__, :ok, [])
-    end
-
-    def init(:ok) do
-      {:ok, []}
-    end
-
-    def handle_call({:echo, msg}, _from, state) do
-       {:reply, msg, state}
-    end
-
-    def handle_cast(:ping,  state) do
-       IO.puts "pong"
-       {:noreply, state} 
-    end
-
-    # --> fxs para el "cliente"
-    def echo(pid, msg) do
-       GenServer.call pid, {:echo, msg}
-    end
-
-    def ping(pid) do
-      GenServer.cast pid, :ping
-    end        
-
+  def handle_cast(:like, cantidad_likes) do
+    nuevo_estado = cantidad_likes + 1
+    {:noreply, nuevo_estado}
+  end
 end
 
-
-{_, pid} = Echoserver.start
-
-
-
-bloque = fn -> 
-    receive do
-      :vola -> IO.puts 'Pepita vuela'
-      :come -> Io.puts 'Pepita come'
-      _ -> IO.puts 'Default'
-    end
-    IO.puts 'La tarea de pepita ha terminado'
-end 
-
-pid = spawn bloque
+#{:ok, pid_del_actor} = Post.start_link
+#post = pid_del_actor
+#for _ <- 1..1000, do: GenServer.cast(post, :like)
