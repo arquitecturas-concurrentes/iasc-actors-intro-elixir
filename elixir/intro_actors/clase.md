@@ -139,7 +139,7 @@ iex> flush()
 :ok
 ```
 
-### OTP/Actores
+### OTP
 
 OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la ruedo todo el tiempo.
 
@@ -172,6 +172,7 @@ end
 #GenServer.call(Post, :get)
 #GenServer.cast(Post, :like)
 #for _ <- 1..1000, do: GenServer.cast(Post, :like)
+#Process.info(post)
 ```
 
 **start_link** nos spawnea un actor linkeado, registrado bajo el nombre del modulo, en este caso Post.
@@ -181,4 +182,3 @@ end
 **handle_cast** es una función que maneja los mensajes de una forma asincronica, es un "fire and forget"
 
 **handle_call** esta función implementa una llamada sincronica, en la que se bloquea el actor hasta que reciba la respuesta o se cumpla un timeout.
- 
