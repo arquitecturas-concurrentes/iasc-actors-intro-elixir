@@ -114,6 +114,8 @@ end
 _Nota: Podemos decir que este proceso KV es un actor._
 
 ```elixir
+iex> {:ok, pid} = KV.start_link
+{:ok, #PID<0.132.0>}
 iex> send pid, {:put, :hello, :world}
 {:put, :hello, :world}
 iex> send pid, {:get, :hello, self()}
@@ -138,3 +140,45 @@ iex> flush()
 ```
 
 ### OTP/Actores
+
+OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la ruedo todo el tiempo.
+
+Vamos a usar el modulo GenServer para modelar nuestro actor, definiendo un link con el mismo, registrando lo bajo un nombre, un estado inicial y funciones que interactúan con el mailbox según corresponda.
+
+```elixir
+defmodule Post do
+  use GenServer
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+  end
+
+  def init(cantidad_inicial_likes) do
+    {:ok, cantidad_inicial_likes}
+  end
+
+  def handle_cast(:like, cantidad_likes) do
+    nuevo_estado = cantidad_likes + 1
+    {:noreply, nuevo_estado}
+  end
+
+  def handle_call(:get, _from, state) do
+    {:reply, state, state}
+  end
+end
+
+#{:ok, pid_del_actor} = Post.start_link(0)
+#post = pid_del_actor
+#GenServer.call(Post, :get)
+#GenServer.cast(Post, :like)
+#for _ <- 1..1000, do: GenServer.cast(Post, :like)
+```
+
+**start_link** nos spawnea un actor linkeado, registrado bajo el nombre del modulo, en este caso Post.
+
+**init** es la función que llama start_link para inicializar el estado del actor.
+
+**handle_cast** es una función que maneja los mensajes de una forma asincronica, es un "fire and forget"
+
+**handle_call** esta función implementa una llamada sincronica, en la que se bloquea el actor hasta que reciba la respuesta o se cumpla un timeout.
+ 
