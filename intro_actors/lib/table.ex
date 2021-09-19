@@ -8,7 +8,6 @@ defmodule Table do
   def loop(map) do
     receive do
 
-      {:
       {:get, key, ref} ->
           send ref, {:ok, Map.get(map, key)}
           loop(map)
@@ -52,7 +51,3 @@ defmodule Table do
   end
 
 end
-
-
-put, key, value} ->
-          loop(Map.put(map, key, value))
