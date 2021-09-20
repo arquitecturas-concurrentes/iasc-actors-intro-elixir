@@ -1,4 +1,4 @@
-defmodule Jose do
+defmodule IntroActors do
   # start es una funcion para inicializar a nuestro actor.. Le pasamos el comportamiento que queremos
   def start do
     spawn(fn -> actividades() end)
@@ -14,7 +14,7 @@ defmodule Jose do
 
 end
 
-#jose = Jose.start
+#jose = IntroActors.start
 #send jose, {self(),:camina}
 #send jose, {self(),:corre}
 
