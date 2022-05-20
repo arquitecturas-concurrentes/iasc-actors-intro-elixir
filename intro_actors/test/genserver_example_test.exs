@@ -7,7 +7,7 @@ defmodule PostTest do
   end
 
   test "post like", %{server: pid} do
-    assert :ok == GenServer.cast(Post, :like)
+    assert :ok == GenServer.cast(Post, {:like, self})
   end
 
   test "get total posts", %{server: pid} do
@@ -15,7 +15,7 @@ defmodule PostTest do
   end
 
   test "get correct total posts", %{server: pid} do
-    for _ <- 1..1000, do: GenServer.cast(Post, :like)
+    for _ <- 1..1000, do: GenServer.cast(Post, {:like, self})
     assert 1000 == GenServer.call(Post, :get)
   end
 end

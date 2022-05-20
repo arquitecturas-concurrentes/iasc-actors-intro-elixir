@@ -1,17 +1,17 @@
 defmodule IntroStateTest do
   use ExUnit.Case
 
-  alias KV
+  alias KV.Task
 
   describe "start_link/0" do
     test "process remains alive" do
-      {:ok, process} = KV.start_link
+      {:ok, process} = KV.Task.start_link
 
       assert Process.alive?(process) == true
     end
 
     test "expect that a :put is received" do
-      {:ok, process} = KV.start_link
+      {:ok, process} = KV.Task.start_link
       message = :world
 
       :erlang.trace(process, true, [:receive])
@@ -22,7 +22,7 @@ defmodule IntroStateTest do
     end
 
     test "expect that a :get is received" do
-      {:ok, process} = KV.start_link
+      {:ok, process} = KV.Task.start_link
       message = :world
       self_process = self()
 

@@ -12,7 +12,7 @@ defmodule Post do
 
   def handle_cast({:like, pid}, state) do
     nuevo_estado = state + 1
-    IO.puts "Recibi :like de #{inspect pid}"
+    #IO.puts "Recibi :like de #{inspect pid}"
     {:noreply, nuevo_estado}
   end
 
