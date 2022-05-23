@@ -18,10 +18,9 @@ defmodule KV.Agent do
 end
 
 
-# {:ok, pid} = KV.Agent.start_link
-# 
-# send pid, {:get, :hello, self()}
-# flush()
-
-# Process.register(pid, :kv)
-# send :kv, {:get, :hello, self()}
+# iex(5)> {:ok, pid} = KV.Agent.start_link
+# {:ok, #PID<0.166.0>}
+# iex(9)> KV.Agent.put(pid, :hello, 1)
+# :ok
+# iex(10)> KV.Agent.get(pid, :hello)   
+# 1
