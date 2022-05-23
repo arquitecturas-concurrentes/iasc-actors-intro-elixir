@@ -1,4 +1,4 @@
-defmodule KV do
+defmodule KV.Task do
   def start_link do
     Task.start_link(fn -> loop(%{}) end)
   end
@@ -13,7 +13,6 @@ defmodule KV do
     end
   end
 end
-
 
 # {:ok, pid} = KV.start_link
 # send pid, {:put, :hello, :world}

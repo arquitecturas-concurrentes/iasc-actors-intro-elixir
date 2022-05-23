@@ -1,17 +1,18 @@
 defmodule IntroActors do
   # start es una funcion para inicializar a nuestro actor.. Le pasamos el comportamiento que queremos
   def start do
-    spawn(fn -> actividades() end)
+    spawn(fn -> loop() end)
   end
 
-  def actividades do
+  def loop do
     receive do
       {_, :camina} -> IO.puts 'Jose empieza a caminar. Proceso #{inspect self()}'
       {_, :corre} -> IO.puts 'Ni ahi. Proceso #{inspect self()}'
       {pid, _ } -> send pid, {:error, 'Accion Invalida de #{inspect pid}'}
     end
+    # Si no loopeamos el proceso muere...
+    #loop
   end
-
 end
 
 #jose = IntroActors.start

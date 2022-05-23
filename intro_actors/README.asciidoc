@@ -1,0 +1,426 @@
+:erlang_movie: footnote:[https://www.youtube.com/watch?v=xrIjfIjssLE]
+:genserver-terminate: footnote:[https://hexdocs.pm/elixir/1.12/GenServer.html#c:format_status/2]
+
+# Intro a actores
+
+En esta clase vamos a estar viendo el modelo de actores, en el que la unidad de computación más primitiva es un actor, que es una computación que recibe un mensaje y hace un procesamiento en base a eso, también puede recibir mensajes, y enviar. Ademas los actores son en realidad un contexto de ejecución y están completamente aislados uno de otros y nunca van a compartir memorias u otros recursos.
+
+## Erlang
+
+Erlang es un lenguaje de programación concurrente, originalmente diseñado por Ericsson{erlang_movie}. Fue diseñado para ser distribuido y tolerante a fallos, para su uso en aplicaciones de comunicaciones en tiempo real de alta disponibilidad (ininterrumpidas). Es un lenguaje funcional puro. También tiene construcciones de lenguaje integradas para distribución y concurrencia. Ademas tiene un sistema de tipos dinámico.
+
+## Elixir
+
+Elixir es un lenguaje de programación funcional, concurrente, de propósito general que se ejecuta sobre la máquina virtual de Erlang (BEAM). Elixir está escrito sobre Erlang y comparte las mismas abstracciones para desarrollar aplicaciones distribuidas y tolerantes a fallos.
+
+### Procesos
+
+En Elixir, todo el código se ejecuta dentro de los procesos. Los procesos están aislados entre sí, se ejecutan "simultáneamente" y se comunican mediante el paso de mensajes.
+
+Los procesos de Elixir no deben confundirse con los procesos del sistema operativo. Los procesos en Elixir son extremadamente ligeros en términos de memoria y CPU (incluso en comparación con los hilos que se utilizan en muchos otros lenguajes de programación). Debido a esto, no es raro tener decenas o incluso cientos de miles de procesos ejecutándose simultáneamente.
+
+.Sobre el runtime
+[NOTE]
+El runtime de Elixir y Erlang, posee una serie de herramientas para inspeccionar los procesos y encontrar posibles problemas, o cuellos de botellas, o de sobre uso de recursos. Estas herramientas que veremos despues pueden ayudar a identificar e inspeccionar procesos problematicos.
+
+Lo que si tienen en comun los procesos de OS y los de BEAM, es que ambos poseen un PCB en comun, aunque en el caso de los procesos de BEAM, estos son mucho mas pequenios que los de un OS. Ademas de esto el proceso posee ademas un `M-Box`, que es la seccion de memoria reservada para alocar mensajes del mailbox de un proceso. Que es un mailbox, que mas tienen los procesos??
+
+## Entonces... Que son los procesos de BEAM??
+
+Los procesos de BEAM son fundamentalmente memoria y un contexto de ejecucion. Estan compuestos por cuatro bloques de memoria: un stack, un heap, una zona de mensajes (M-box), y el PCB.
+
+El stack es usado para el estado de la ejecucion del proceso en si, guardando la direccion de retorno de la funcion que esta ejecutando, para pasar agumentos a la funciones y para tener traza de las variables locales. Las estructuras de datos mas complejas, como listas y tuplas son alocadas en el heap.
+
+El area de mensajes, tambien llamado mailbox o buzon, es usado para guardar mensajes que vienen de otros procesos.
+
+TIP: La razon por la cual existe este mailbox, es la de que el proceso no pare su ejecucion ante la llegada de un mensaje, y este pueda leerse y realizar una accion frente a estos mensajes.
+
+
+El PCB, es usado para mantener el estado del proceso en general.
+
+Por lo que el proceso esta compuesto por estas cuatro partes como se puede ver en la siguiente imagen:
+
+image::img/erl_process.png[]
+
+Si bien es simple el diagrama, en otra seccion hablaremos mas de los internals de BEAM. Veamos un poco como podemos inspeccionar un poco sobre los procesos
+
+Podemos ver los procesos que estan corriendo actualmente con la funcion `i()` de erlang, que podemos llamar en Elixir por medio de `:shell_default.i`
+
+```elixir
+$ iex
+Erlang/OTP 24 [erts-12.3.2] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [jit]
+
+Interactive Elixir (1.13.0-dev) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> :shell_default.i
+Pid                   Initial Call                          Heap     Reds Msgs
+Registered            Current Function                     Stack              
+<0.0.0>               erl_init:start/2                      1598     5444    0
+init                  init:loop/1                              3              
+<0.1.0>               erts_code_purger:start/0               233        8    0
+erts_code_purger      erts_code_purger:wait_for_request        2              
+<0.2.0>               erts_literal_area_collector:start      233        7    0
+                      erts_literal_area_collector:msg_l        9              
+<0.3.0>               erts_dirty_process_signal_handler      233        7    0
+                      erts_dirty_process_signal_handler        3              
+<0.4.0>               erts_dirty_process_signal_handler      233        7    0
+                      erts_dirty_process_signal_handler        3              
+<0.5.0>               erts_dirty_process_signal_handler      233        7    0
+                      erts_dirty_process_signal_handler        3              
+<0.6.0>               prim_file:start/0                      233        6    0
+                      prim_file:helper_loop/0                  2              
+<0.7.0>               socket_registry:start/0                233        8    0
+socket_registry       socket_registry:loop/1                   5              
+more (y/n)? (y) y
+<0.10.0>              erlang:apply/2                        6772   160500    0
+erl_prim_loader       erl_prim_loader:loop/3                   7              
+<0.42.0>              logger_server:init/1                  1598     1059    0
+logger                gen_server:loop/7                       12              
+<0.44.0>              erlang:apply/2                        4185    64640    0
+application_controlle gen_server:loop/7                        8              
+<0.46.0>              application_master:init/4              376       40    0
+                      application_master:main_loop/2           8              
+<0.47.0>              application_master:start_it/4          233      505    0
+                      application_master:loop_it/4             7              
+<0.49.0>              supervisor:kernel/1                    610     2829    0
+kernel_sup            gen_server:loop/7                       12              
+<0.50.0>              erlang:apply/2                        6772   117689    0
+code_server           code_server:loop/1                       5              
+<0.51.0>              inet_db:init/1                         233      352    0
+inet_db               gen_server:loop/7                       12              
+<0.53.0>              rpc:init/1                             233       35    0
+rex                   gen_server:loop/7                       12        
+```
+
+despues de eso podemos ver un poco mas de la info del proceso por medio de la misma funcion
+
+```elixir
+iex(2)> :shell_default.i(0,53,0) 
+[
+  registered_name: :rex,
+  current_function: {:gen_server, :loop, 7},
+  initial_call: {:proc_lib, :init_p, 5},
+  status: :waiting,
+  message_queue_len: 0,
+  links: [#PID<0.49.0>],
+  dictionary: [
+    "$ancestors": [:kernel_sup, #PID<0.47.0>],
+    "$initial_call": {:rpc, :init, 1}
+  ],
+  trap_exit: true,
+  error_handler: :error_handler,
+  priority: :normal,
+  group_leader: #PID<0.46.0>,
+  total_heap_size: 233,
+  heap_size: 233,
+  stack_size: 12,
+  reductions: 36,
+  garbage_collection: [
+    max_heap_size: %{error_logger: true, kill: true, size: 0},
+    min_bin_vheap_size: 46422,
+    min_heap_size: 233,
+    fullsweep_after: 65535,
+    minor_gcs: 0
+  ],
+  suspending: []
+]
+```
+
+TIP: Si bien la funcion `i()`, puede ayudar a ver informacion interesante sobre el proceso, el observer puede ser util al poder ver esta informacion y de manera mas facil. Se recomienda usar el `observer`, cuando debemos hacer tracing o ver varios procesos.
+
+Que datos son utiles de esta funcion?
+
+Por el momento varios, como el `status` (estado en el que esta el proceso), `message_queue_len` (mensajes en el buzon), `links` (links asociados al proceso inspeccionado, veremos despues que son), `current_function` (funcion que esta ejecutando actualmente), `registered_name` (nombre registrado).
+
+
+## Sobre el observer
+
+Podemos instanciar el observer por medio de la funcion `:observer.start`.
+
+Luego de eso tendriamos que ver el observer ya funcionando en una consola aparte:
+
+image::img/observer_1.png[]
+
+Podemos inspeccionar algun proceso en la pestania de `Processes`, y elegir uno para ver los mismos datos que veriamos con la funcion `i()`
+
+image::img/observer_2.png[]
+
+Ahora que vimos un poco sobre los procesos veamos un poco como podemos crear un proceso y enviar mensajes
+
+### Spawn
+
+La función `spawn/1` crea un proceso que ejecuta la función que le es enviada por parámetro, retorna el PID del proceso creado y este deja de existir al completar la ejecución de su tarea.
+
+```elixir
+iex> pid = spawn fn -> 1 + 2 end
+#PID<0.44.0>
+iex> Process.alive?(pid)
+false
+```
+
+### Send y Receive
+
+Podemos enviar mensajes a los procesos con la funcion `send/2` y recivirlos con `receive/1`
+
+```elixir
+iex> send self(), {:hello, "world"}
+{:hello, "world"}
+iex> receive do
+...>   {:hello, msg} -> msg
+...>   {:world, _msg} -> "won't match"
+...> end
+"world"
+```
+
+Cuando un mensaje es enviado a un proceso, este es guardado en un "mailbox". El `receive/1` revisa el mailbox del proceso buscando mensajes que matcheen con alguno de los patrones definidos.
+
+```elixir
+iex> parent = self()
+#PID<0.41.0>
+iex> spawn fn -> send(parent, {:hello, self()}) end
+#PID<0.48.0>
+iex> receive do
+...>   {:hello, pid} -> "Got hello from #{inspect pid}"
+...> end
+"Got hello from #PID<0.48.0>"
+```
+
+### Links
+
+La mayoria de las veces que spawneamos un proceso en Elixir, creamos un proceso linkeado. Antes de entrar en `spawn_link/1`, veamos que pasa cuando con los procesos creados con `spawn/1` fallan.
+
+```elixir
+iex> spawn fn -> raise "ups" end
+#PID<0.58.0>
+
+[error] Process #PID<0.58.00> raised an exception
+** (RuntimeError) ups
+    (stdlib) erl_eval.erl:668: :erl_eval.do_apply/6
+
+```
+
+Lanzo un error, pero el proceso padre sigue ejecutandose. Esto ocurre porque los procesos son aislados. Si queremos que el error se propague, tenemos que linkearlos. Esto se puede hacer con `spawn_link/1`
+
+```elixir
+iex> self()
+#PID<0.41.0>
+iex> spawn_link fn -> raise "ups" end
+
+** (EXIT from #PID<0.41.0>) evaluator process exited with reason: an exception was raised:
+    ** (RuntimeError) ups
+        (stdlib) erl_eval.erl:668: :erl_eval.do_apply/6
+
+[error] Process #PID<0.289.0> raised an exception
+** (RuntimeError) ups
+    (stdlib) erl_eval.erl:668: :erl_eval.do_apply/6
+
+```
+
+Como los procesos están linkeados, ahora vemos que el proceso padre, en este caso la consola, recibió una señal EXIT de otro proceso causando que esta termine su ejecución.
+
+Los procesos y los links juegan un rol importante para poder crear sistemas tolerantes a fallas. Los procesos en Elixir son "aislados", es decir que por defecto no comparten estado. Por esto, una falla en un proceso nunca va romper otro proceso. Sin embargo, los links nos permiten establecer una relación entre procesos en el caso de una falla.
+
+### Estado
+
+Hasta ahora nombramos algo del estado, pero no mucho. Supongamos que estamos creando una aplicación que requiere de estado, por ejemplo, para guardar la configuración del sistema y administrarla dinamicamente en memoria. Donde ponemos ese estado?... Podemos escribir un proceso que esta siempre a la escucha (loopee indefinidamente), mantenga el estado.
+
+```elixir
+defmodule KV do
+  def start_link do
+    Task.start_link(fn -> loop(%{}) end)
+  end
+
+  defp loop(map) do
+    receive do
+      {:get, key, caller} ->
+        send caller, Map.get(map, key)
+        loop(map)
+      {:put, key, value} ->
+        loop(Map.put(map, key, value))
+    end
+  end
+end
+```
+
+_Nota: Podemos decir que este proceso KV es un actor._
+
+```elixir
+iex> {:ok, pid} = KV.start_link
+{:ok, #PID<0.132.0>}
+iex> send pid, {:put, :hello, :world}
+{:put, :hello, :world}
+iex> send pid, {:get, :hello, self()}
+{:get, :hello, #PID<0.41.0>}
+iex> flush()
+:world
+:ok
+```
+
+WARNING: Esto es solo a modo de ejemplo, normalmente cuando hablamos guardar o mantener un estado vamos a estar pensando en un tipo particular de actor llamado Agent._
+
+En realidad Task es util solo cuando queremos realizar un procesamiento que no requiera envio o interaccion con otros procesos y que sea mas bien una tarea, que puede ser loggeo, enviar datos a una bbdd, u otra accion que pueda realizar este proceso sin interaccion del resto del sistema. 
+
+Un ejemplo de un uso mas `normal` de una TASK puede ser la siguiente:
+
+```elixir
+defmodule IASC.WriteHaiku do
+  use Task
+
+  @file_opts [:append, {:encoding, :utf8}]
+  @file_name "haiku.txt"
+
+  def start_link_run(arg) do
+    Task.start_link(__MODULE__, :run, [arg])
+  end
+
+  def start_link_read() do
+    Task.start_link(__MODULE__, :read_haiku, [])
+  end
+
+  def run(content) do
+    check_and_create
+    write_haiku(content)
+  end
+
+  @doc """
+    Escribe en el archivo
+  """
+  def write_haiku(content) do
+    File.write(@file_name, "#{content}\n", @file_opts)
+  end
+
+  def read_haiku do
+    case File.read(@file_name) do
+      {:error, error_desc} -> IO.puts "Error leyendo #{@file_name}: #{error_desc}"
+      {:ok, contenido} -> IO.puts("Contenido de #{@file_name}: #{contenido}")
+    end
+  end
+
+  @doc """
+  Chequea si el archivo existe y lo crea si no lo esta
+  """
+  def check_and_create do
+    unless File.exists? @file_name do
+      File.write(@file_name, "", [:write, {:encoding, :utf8}])
+    end
+  end
+
+end
+```
+
+luego de esto puede solo invocarse, y nuestro proceso `IASC.WriteHaiku`, escribiria nuestro haiku en un archivo:
+
+```elixir
+{:ok, pid} = IASC.WriteHaiku.start_link_read()
+haiku= "Arbol sereno\nque en el bosque protege\na tantos seres"
+{:ok, pid} = IASC.WriteHaiku.start_link_run(haiku)
+```
+
+Para mantener estado, tal como lo mencionamos antes, vamos a utilizar una abstraccion de OTP llamada `Agent`.
+
+### Agent
+
+El agent es un módulo que nos permite modelar un proceso que permita almacenar un estado, y en general se usa solo para este propósito.
+
+TIP: El almacenamiento de un agent es solo en memoria y no se persiste en disco.
+
+Un ejemplo clasico de un Agent, es el ejemplo de un mapa clave/valor, veamos como se hace esto con un Agent.
+
+Para actualizar el estado de un Agent, debemos usar la funcion `update/2`, mientras que para obtener un valor tendriamos que usar el `get/2`.
+
+Usando estas funciones, podemos armar funciones auxiliares para armar un simple almacenamiento de `clave/valor`:
+
+```elixir
+defmodule KV.Agent do
+  use Agent
+
+  def start_link do
+    Agent.start_link(fn -> %{} end)
+  end
+
+  # agent es el pid del Agent -> KV.Agent
+  # Agent.get(agent, fn content -> Map.get(content, key) end)
+  def get(agent, key) do
+    Agent.get(agent, &Map.get(&1, key))
+  end
+
+  # fn map -> Map.put(map, key, value) end
+  def put(agent, key, value) do
+    Agent.update(agent, &Map.put(&1, key, value))
+  end
+end
+```
+
+Cuando querramos usar estos procesos, tenemos que solo usar las funciones que armamos `put/3` y `get/2`
+
+```elixir
+iex(5)> {:ok, pid} = KV.Agent.start_link
+{:ok, #PID<0.166.0>}
+iex(9)> KV.Agent.put(pid, :hello, 1)
+:ok
+iex(10)> KV.Agent.get(pid, :hello)   
+1
+```
+
+#### Registracion de pids
+
+Cualquier proceso que conozca el PID del KV va a poder enviarle mensajes. Es posible registrar el PID del proceso bajo un nombre, permitiendo comunicarse con el proceso a través de ese nombre sin necesidad de saber el PID exacto.
+
+```elixir
+iex> Process.register(pid, :kv)
+true
+iex> send :kv, {:get, :hello, self()}
+{:get, :hello, #PID<0.41.0>}
+iex> flush()
+:world
+:ok
+```
+
+### OTP
+
+OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la ruedo todo el tiempo.
+
+Vamos a usar el modulo GenServer para modelar nuestro actor, definiendo un link con el mismo, registrando lo bajo un nombre, un estado inicial y funciones que interactúan con el mailbox según corresponda.
+
+```elixir
+defmodule Post do
+  use GenServer
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+  end
+
+  def init(cantidad_inicial_likes) do
+    {:ok, cantidad_inicial_likes}
+  end
+
+  def handle_cast(:like, cantidad_likes) do
+    nuevo_estado = cantidad_likes + 1
+    {:noreply, nuevo_estado}
+  end
+
+  def handle_call(:get, _from, state) do
+    {:reply, state, state}
+  end
+end
+
+#{:ok, pid_del_actor} = Post.start_link(0)
+#post = pid_del_actor
+#GenServer.call(Post, :get)
+#GenServer.cast(Post, :like)
+#for _ <- 1..1000, do: GenServer.cast(Post, :like)
+#Process.info(post)
+```
+
+**start_link** nos spawnea un actor linkeado, registrado bajo el nombre del modulo, en este caso Post.
+
+**init** es la función que llama start_link para inicializar el estado del actor.
+
+**handle_cast** es una función que maneja los mensajes de una forma asincronica, es un "fire and forget"
+
+**handle_call** esta función implementa una llamada sincronica, en la que se bloquea el actor hasta que reciba la respuesta o se cumpla un timeout.
+
+### Ciclo de vida de un proceso
+
+Lo que mantiene vivo un proceso de `OTP`, es lo mismo que hicimos cuando describimos el `KV` por medio de un proceso de OTP `Task`, y es un loop, cuando este loop deja de ejecutarse, sea por un error, o porque el `format_status/2` es `terminate`{genserver-terminate}
+
+image::img/lifecycle.png[]
