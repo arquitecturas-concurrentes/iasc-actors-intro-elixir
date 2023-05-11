@@ -1,4 +1,6 @@
 defmodule KV.Task do
+  use Task
+
   def start_link do
     Task.start_link(fn -> loop(%{}) end)
   end
