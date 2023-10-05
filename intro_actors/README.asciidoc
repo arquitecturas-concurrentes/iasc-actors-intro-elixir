@@ -1,5 +1,5 @@
 :erlang_movie: footnote:[https://www.youtube.com/watch?v=xrIjfIjssLE]
-:genserver-terminate: footnote:[https://hexdocs.pm/elixir/1.12/GenServer.html#c:format_status/2]
+:genserver-terminate: footnote:[https://hexdocs.pm/elixir/1.14/GenServer.html#c:format_status/2]
 
 # Intro a actores
 
