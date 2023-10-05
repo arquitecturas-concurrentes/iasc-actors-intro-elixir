@@ -16,7 +16,7 @@ defmodule KV.Task do
   end
 end
 
-# {:ok, pid} = KV.start_link
+# {:ok, pid} = KV.Task.start_link
 # send pid, {:put, :hello, :world}
 # send pid, {:get, :hello, self()}
 # flush()
