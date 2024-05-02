@@ -6,7 +6,7 @@ defmodule Post do
     GenServer.start(__MODULE__, state, name: name)
   end
 
-    def start_link(state, name) do
+  def start_link(state, name) do
     GenServer.start_link(__MODULE__, state, name: name)
   end
 
@@ -28,8 +28,8 @@ defmodule Post do
 
   # --- funciones de uso ---
 
-  def like(post) do
-    GenServer.cast(post, {:like, self})
+  def like(post, pid) do
+    GenServer.cast(post, {:like, pid})
   end
 
   def get_likes(post) do
@@ -37,21 +37,15 @@ defmodule Post do
   end
 end
 
-#{:ok, post} = Post.start_link(0)
-#post = pid_del_actor
-#GenServer.call(Post, :get)
-#GenServer.cast(Post, :like)
+#{:ok, post} = Post.start_link(0, :post_principal)
 #for _ <- 1..1000, do: Post.like(:post_principal)
-
-# recibir_like = fn -> Post.get_likes(:post_) end
-# aumentar_like = fn -> Post.like(Post) end
-
-
-
 # aumentar_like = fn -> for _ <- 1..1000, do
 # Post.like(:post_principal) 
 # :timer.sleep(50)
 # end
 # end
 
-# pid_aumentar = spawn aumentar_like
+#GenServer.call(Post, :get)
+#GenServer.cast(Post, :like, self)
+# recibir_like = fn -> Post.get_likes(:post_) end
+# aumentar_like = fn -> Post.like(Post) end

@@ -7,4 +7,4 @@ bloque = fn ->
     IO.puts 'La tarea de pepita ha terminado'
 end 
 
-pid = spawn bloque
+#pid = spawn bloque

@@ -12,11 +12,6 @@ defmodule IASC.WriteHaiku do
     Task.start_link(__MODULE__, :read_haiku, [])
   end
 
-  def run(content) do
-    check_and_create
-    write_haiku(content)
-  end
-
   @doc """
     Escribe en el archivo
   """
@@ -40,6 +35,10 @@ defmodule IASC.WriteHaiku do
     end
   end
 
+  def run(content) do
+    check_and_create()
+    write_haiku(content)
+  end
 end
 
 # {:ok, pid} = IASC.WriteHaiku.start_link_read()
