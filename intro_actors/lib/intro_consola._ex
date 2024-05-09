@@ -26,6 +26,13 @@ iex(6)> flush
 :bleh
 :ok
 
+receive do
+ {:hello, msg} -> msg
+ {:world, msg} -> 'dont match'
+after
+  10_000 -> "No paso nada después de 10s"
+end
+
 #veamos algo ahora un poco más complejo
 iex(9)> send self(), {:hello, "world"}
 {:hello, "world"}
@@ -102,7 +109,7 @@ iex(23)> flush
 
 #hay secuencialidad?
 
-g = fn(x) -> :timer.sleep(50); IO.puts "#{x}" end
+g = fn(x) -> :timer.sleep(100); IO.puts "#{x}" end
 for n <- 1..10, do: spawn(fn-> g.(n) end)
 
 iex(1)> g = fn(x) -> :timer.sleep(50); IO.puts "#{x}" end
@@ -213,3 +220,10 @@ iex(3)> :shell_default.i(0,62,0)
   ],
   suspending: []
 ]
+
+
+spawn fn -> raise "ups" end
+
+spawn_link fn -> raise "ups" end
+
+Process.info(jose, :links)

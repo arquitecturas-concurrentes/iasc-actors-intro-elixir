@@ -8,6 +8,10 @@ defmodule IASC.WriteHaiku do
     Task.start_link(__MODULE__, :run, [arg])
   end
 
+  def start_run(arg) do
+    Task.start(__MODULE__, :run, [arg])
+  end
+
   def start_link_read() do
     Task.start_link(__MODULE__, :read_haiku, [])
   end

@@ -4,7 +4,7 @@ defmodule Actors.Mixfile do
   def project do
     [app: :intro_actors,
      version: "0.0.3",
-     elixir: "~> 1.9",
+     elixir: "~> 1.15",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -14,7 +14,7 @@ defmodule Actors.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :eex, :wx, :observer, :runtime_tools]]
   end
 
   # Dependencies can be Hex packages:

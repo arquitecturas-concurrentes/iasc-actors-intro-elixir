@@ -1,6 +1,10 @@
 defmodule KV.Agent do
   use Agent
 
+  def start do
+    Agent.start(fn -> %{} end)
+  end
+
   def start_link do
     Agent.start_link(fn -> %{} end)
   end
@@ -15,8 +19,6 @@ defmodule KV.Agent do
   def put(agent, key, value) do
     Agent.update(agent, &Map.put(&1, key, value))
   end
-
-  
 end
 
 
@@ -24,5 +26,5 @@ end
 # {:ok, #PID<0.166.0>}
 # iex(9)> KV.Agent.put(pid, :hello, 1)
 # :ok
-# iex(10)> KV.Agent.get(pid, :hello)   
+# iex(10)> KV.Agent.get(pid, :hello)
 # 1
