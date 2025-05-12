@@ -271,7 +271,7 @@ iex> flush()
 
 ### OTP
 
-OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la ruedo todo el tiempo.
+OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la rueda todo el tiempo.
 
 ### Genserver
 

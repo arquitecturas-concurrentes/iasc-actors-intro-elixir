@@ -10,10 +10,10 @@ defmodule IntroActors do
 
   def loop() do
     receive do
-      {_, :camina} -> IO.puts 'Jose empieza a caminar. Proceso #{inspect self()}'
-      {_, :corre} -> IO.puts 'Ni ahi. Proceso #{inspect self()}'
-      {pid, _ } -> send pid, {:error, 'Accion Invalida de #{inspect pid}'}
-      _ -> IO.puts 'Accion Invalida...'
+      {_, :camina} -> IO.puts "Jose empieza a caminar. Proceso #{inspect self()}"
+      {_, :corre} -> IO.puts "Ni ahi. Proceso #{inspect self()}"
+      {pid, _ } -> send pid, {:error, "Accion Invalida de #{inspect pid}"}
+      _ -> IO.puts "Accion Invalida..."
     end
     loop()
   end

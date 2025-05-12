@@ -20,12 +20,12 @@ defmodule Post do
 
   ## envio sincronico
   def handle_call(:get, from_pid, state) do
-    IO.puts 'Recibi pedido de cant de likes de #{inspect from_pid}'
+    IO.puts "Recibi pedido de cant de likes de #{inspect from_pid}"
     {:reply, state, state}
   end
 
   def handle_call(:blah, from_pid, state) do
-    IO.puts 'Recibi pedido de blah de #{inspect from_pid}'
+    IO.puts "Recibi pedido de blah de #{inspect from_pid}"
     {:reply, state+1, state}
   end
 
