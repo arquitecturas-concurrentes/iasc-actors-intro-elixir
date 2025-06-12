@@ -16,7 +16,7 @@ jobs:
     name: Build and test
     runs-on: self-hosted
     env:
-      ImageOS: ubuntu24
+      ImageOS: ubuntu22
 
     steps:
     - uses: actions/checkout@v3
