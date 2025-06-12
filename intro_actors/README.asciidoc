@@ -13,7 +13,7 @@ Erlang es un lenguaje de programación concurrente, originalmente diseñado por 
 
 Elixir es un lenguaje de programación funcional, concurrente, de propósito general que se ejecuta sobre la máquina virtual de Erlang (BEAM). Elixir está escrito sobre Erlang y comparte las mismas abstracciones para desarrollar aplicaciones distribuidas y tolerantes a fallos.
 
-### Procesos
+## Procesos
 
 En Elixir, todo el código se ejecuta dentro de los procesos. Los procesos están aislados entre sí, se ejecutan "simultáneamente" y se comunican mediante el paso de mensajes.
 
@@ -25,7 +25,7 @@ El runtime de Elixir y Erlang, posee una serie de herramientas para inspeccionar
 
 Lo que si tienen en comun los procesos de OS y los de BEAM, es que ambos poseen un PCB en comun, aunque en el caso de los procesos de BEAM, estos son mucho mas pequenios que los de un OS. Ademas de esto el proceso posee ademas un `M-Box`, que es la seccion de memoria reservada para alocar mensajes del mailbox de un proceso. Que es un mailbox, que mas tienen los procesos??
 
-## Entonces... Que son los procesos de BEAM??
+### Entonces... Que son los procesos de BEAM??
 
 Los procesos de BEAM son fundamentalmente memoria y un contexto de ejecucion. Estan compuestos por cuatro bloques de memoria: un stack, un heap, una zona de mensajes (M-box), y el PCB.
 
@@ -132,7 +132,7 @@ Que datos son utiles de esta funcion?
 Por el momento varios, como el `status` (estado en el que esta el proceso), `message_queue_len` (mensajes en el buzon), `links` (links asociados al proceso inspeccionado, veremos despues que son), `current_function` (funcion que esta ejecutando actualmente), `registered_name` (nombre registrado).
 
 
-## Sobre el observer
+### Sobre el observer
 
 Podemos instanciar el observer por medio de la funcion `:observer.start`.
 
@@ -269,7 +269,7 @@ iex> flush()
 :ok
 ```
 
-### OTP
+## OTP
 
 OTP es un conjunto de middlewares, librerias y herramientas escritas en Erlang que ademas de muchas otras cosas más, encapsulan todo lo visto anteriormente para no estar re inventando la rueda todo el tiempo.
 
@@ -296,6 +296,14 @@ defmodule Post do
 
   def handle_call(:get, _from, state) do
     {:reply, state, state}
+  end
+  
+  def incrementar_like(pid) do
+    GenServer.cast(pid, :like)
+  end
+
+    def obtener_likes(pid) do
+    GenServer.call(pid, :get)
   end
 end
 
