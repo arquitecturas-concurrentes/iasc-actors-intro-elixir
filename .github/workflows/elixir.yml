@@ -14,17 +14,17 @@ jobs:
        working-directory: ./intro_actors
 
     name: Build and test
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     env:
-      ImageOS: ubuntu22
+      ImageOS: ubuntu24
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       
       with:
-        elixir-version: '1.18' # Define the elixir version [required]
+        elixir-version: '1.18.4' # Define the elixir version [required]
         otp-version: '28' # Define the OTP version [required]
     - name: Install dependencies
       run: mix deps.get
